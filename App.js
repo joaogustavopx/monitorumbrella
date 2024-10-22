@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, Image } from 'react-native';
+import { StyleSheet, Text, View, Button, Image, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,10 +11,10 @@ function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://manufacturingskillsinstitute.org/wp-content/uploads/2021/07/Stihl-Logo-for-website.png' }} 
+        source={{ uri: 'https://simulare.com.br/wp-content/uploads/stihl.png' }} 
         style={styles.image}
       />
-      <Text style={styles.text}>Leia o QRcode</Text>
+      <Text style={styles.text}>Liberar Guarda-Chuva</Text>
       <Button title="Ler Código QR" onPress={() => navigation.navigate('QRCodeScreen')} />
       <StatusBar style="auto" />
     </View>
@@ -38,7 +38,9 @@ function QRCodeScreen() {
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     setData(data);
-    alert(`QR Code escaneado: ${data}`);
+    
+    // Tentar abrir a URL no navegador
+    Linking.openURL(data).catch(err => console.error("Erro ao abrir URL:", err));
   };
 
   if (hasPermission === null) {
@@ -75,7 +77,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f46717', // Cor laranja da Stihl
+    backgroundColor: '#E95E0E', // Cor laranja da Stihl
     alignItems: 'center',
     justifyContent: 'center',
   },
