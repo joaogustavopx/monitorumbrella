@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, Image, Linking } from 'react-native';
+import { StyleSheet, Text, View, Button, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import { WebView } from 'react-native-webview';
 
 const Stack = createStackNavigator();
 
@@ -21,7 +22,7 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function QRCodeScreen() {
+function QRCodeScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState('');
@@ -29,18 +30,15 @@ function QRCodeScreen() {
   useEffect(() => {
     const getPermissions = async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
-      console.log("Camera permission status:", status); // Log para depuração
       setHasPermission(status === 'granted');
     };
     getPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = ({ data }) => {
     setScanned(true);
     setData(data);
-    
-    // Tentar abrir a URL no navegador
-    Linking.openURL(data).catch(err => console.error("Erro ao abrir URL:", err));
+    navigation.navigate('WebViewScreen', { url: data });
   };
 
   if (hasPermission === null) {
@@ -57,9 +55,16 @@ function QRCodeScreen() {
         style={StyleSheet.absoluteFillObject}
       />
       {scanned && <Button title={'Escanear novamente'} onPress={() => { setScanned(false); setData(''); }} />}
-      {data ? <Text style={styles.text}>Código escaneado: {data}</Text> : null}
       <StatusBar style="auto" />
     </View>
+  );
+}
+
+function WebViewScreen({ route }) {
+  const { url } = route.params;
+
+  return (
+    <WebView source={{ uri: url }} style={{ flex: 1 }} />
   );
 }
 
@@ -69,6 +74,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="QRCodeScreen" component={QRCodeScreen} />
+        <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
